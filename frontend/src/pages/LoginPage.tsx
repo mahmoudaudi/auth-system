@@ -85,10 +85,6 @@ export default function LoginPage() {
             </button>
           </label>
 
-          <button type="button" className="auth-forgot" onClick={() => navigate("/register")}>
-            Forgot Password?
-          </button>
-
           <button
             className="auth-btn"
             type="submit"

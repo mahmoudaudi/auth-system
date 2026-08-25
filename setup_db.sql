@@ -4,7 +4,7 @@
 CREATE DATABASE IF NOT EXISTS auth_system CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE DATABASE IF NOT EXISTS auth_system_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-CREATE USER IF NOT EXISTS 'auth_app'@'localhost' IDENTIFIED BY 'change_me_strong_password';
+CREATE USER IF NOT EXISTS 'auth_app'@'localhost' IDENTIFIED BY 'your_secure_password_here';
 GRANT ALL PRIVILEGES ON auth_system.* TO 'auth_app'@'localhost';
 GRANT ALL PRIVILEGES ON auth_system_test.* TO 'auth_app'@'localhost';
 FLUSH PRIVILEGES;
