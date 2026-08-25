@@ -1,0 +1,12 @@
+# Ruff configuration - tuned for FastAPI conventions
+[lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+
+[lint.flake8-bugbear]
+# These FastAPI helpers are DESIGNED to be called in argument defaults.
+extend-immutable-calls = [
+    "fastapi.Depends",
+    "fastapi.Query",
+    "fastapi.Body",
+    "fastapi.Path",
+]
