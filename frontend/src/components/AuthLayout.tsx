@@ -31,18 +31,20 @@ export default function AuthLayout({
         className={`auth-panel relative z-[2] flex justify-center px-6 pb-8 sm:px-12 ${
           compact
             ? "items-center pt-20"
-            : "pt-40 sm:pt-44 lg:pt-[clamp(160px,23vh,240px)]"
+            : "min-h-screen items-center sm:min-h-0 sm:items-start sm:pt-44 lg:pt-[clamp(160px,23vh,240px)]"
         }`}
       >
-        {!compact && (
-          <img
-            src={avatar}
-            alt=""
-            draggable={false}
-            className="absolute left-1/2 top-6 z-[3] w-16 -translate-x-1/2 sm:top-8 sm:w-[72px] lg:top-[clamp(48px,7vh,80px)] lg:w-20"
-          />
-        )}
-        <div className={`w-full max-w-[420px] ${compact ? "my-auto" : ""}`}>{children}</div>
+        <div className={`relative w-full max-w-[420px] ${compact ? "my-auto" : ""}`}>
+          {!compact && (
+            <img
+              src={avatar}
+              alt=""
+              draggable={false}
+              className="mx-auto mb-4 block w-16 sm:absolute sm:left-1/2 sm:top-6 sm:mx-0 sm:mb-0 sm:block sm:-translate-x-1/2 lg:top-[clamp(48px,7vh,80px)] lg:w-20 sm:w-[72px]"
+            />
+          )}
+          {children}
+        </div>
       </section>
 
       {/* Art panel */}

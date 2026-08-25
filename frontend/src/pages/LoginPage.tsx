@@ -86,7 +86,7 @@ export default function LoginPage() {
           </label>
 
           <button
-            className="auth-btn"
+            className="auth-btn mt-3"
             type="submit"
             disabled={loading || !email || !password}
           >
