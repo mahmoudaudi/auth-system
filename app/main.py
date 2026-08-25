@@ -11,6 +11,7 @@ from app.routes import auth, stats, users
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 UPLOAD_DIR = os.path.join(PROJECT_ROOT, "uploads")
+os.makedirs(os.path.join(UPLOAD_DIR, "avatars"), exist_ok=True)
 
 
 @asynccontextmanager
