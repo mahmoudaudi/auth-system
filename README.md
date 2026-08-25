@@ -13,8 +13,8 @@ auth-system/
 │   ├── main.py                  # App creation, router mounting, table bootstrap
 │   ├── create_admin.py          # One-time CLI: creates the first admin (python -m app.create_admin)
 │   ├── core/
-│   │   ├── config.py            # Settings loaded from .env (secrets never hardcoded)
-│   │   └── security.py          # Argon2 hash/verify + JWT create/decode
+│   │   ├── config.py            # Settings loaded from .env
+│   │   └── security.py          # Password hashing + JWT create/decode
 │   ├── database/
 │   │   └── db.py                # Engine, SessionLocal, get_db dependency
 │   ├── models/
@@ -122,9 +122,9 @@ Errors: `400` bad logic · `401` missing/invalid/expired token, bad credentials,
 ## 9. Authentication flow
 
 1. Client posts credentials to `/login`.
-2. Service looks up an **active** user by email and verifies the Argon2 hash.
+2. Service looks up an **active** user by email and verifies the password.
    Unknown email / wrong password / soft-deleted account all return the same generic
-   `401 Invalid email or password` (prevents user enumeration).
+   `401 Invalid email or password`.
 3. On success the server signs a JWT containing `sub=<user_id>`, `iat`, `exp` with
    `JWT_SECRET_KEY` — no server-side session storage needed (stateless).
 4. Clients send `Authorization: Bearer <token>`.
@@ -173,20 +173,3 @@ All public, all restricted to active users:
 - `/stats/count` → `COUNT(*)`
 - `/stats/average-age` → `AVG(age)` rounded to 2 decimals (`null` when empty)
 - `/stats/top-cities` → `GROUP BY city ORDER BY count DESC LIMIT 3`
-
-## 14. Security checklist
-
-- ✅ Argon2id password hashing (auto-salted, never plaintext/reversible)
-- ✅ Hashes never appear in any response (`UserOut` has no password fields)
-- ✅ JWT secret from environment, generated randomly per install
-- ✅ Tokens expire (`exp` verified by PyJWT); expired ⇒ 401
-- ✅ Role escalation impossible by design: public/self-update schemas contain no
-  `type` field; extra JSON keys ignored; service hardcodes `client` on register;
-  only admin schemas accept `type`
-- ✅ Generic login errors (no user enumeration); deleted users indistinguishable
-- ✅ Soft-deleted protection: cannot login, tokens invalidated, hidden everywhere
-- ✅ Duplicate emails blocked twice: pre-check (409) + DB UNIQUE constraint safety net
-- ✅ Pydantic validation on every input (names, email format, phone regex,
-  age 13–120, password complexity, role whitelist)
-- ✅ Parameterized SQL via SQLAlchemy ORM (no injection)
-- ✅ Secrets/config exclusively via `.env` (git-ignored)
