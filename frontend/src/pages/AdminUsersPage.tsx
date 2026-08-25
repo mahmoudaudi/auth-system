@@ -16,6 +16,7 @@ import { useAuth } from "../auth/AuthContext";
 import Modal from "../components/Modal";
 import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
 import TextField from "../components/TextField";
+import { useToast } from "../components/ToastContext";
 import {
   isPasswordValid,
   passwordChecks,
@@ -116,8 +117,8 @@ function UserFormModal({ mode, user, onClose, onSaved }: FormModalProps) {
         },
   );
   const [errors, setErrors] = useState<FormErrors>({});
-  const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const { addToast } = useToast();
 
   const checks = passwordChecks(form.password);
 
@@ -128,7 +129,6 @@ function UserFormModal({ mode, user, onClose, onSaved }: FormModalProps) {
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    setFormError(null);
 
     const nextErrors: FormErrors = {};
     (Object.keys(FIELD_VALIDATORS) as Array<keyof UserFormState>).forEach((name) => {
@@ -155,11 +155,13 @@ function UserFormModal({ mode, user, onClose, onSaved }: FormModalProps) {
     try {
       if (mode === "create") {
         await adminCreateUser({ ...base, password: form.password });
+        addToast("success", "User created successfully!");
       } else {
         await adminUpdateUser(user!.id, {
           ...base,
           ...(form.password ? { password: form.password } : {}),
         });
+        addToast("success", "User updated successfully!");
       }
       onSaved();
       onClose();
@@ -170,10 +172,10 @@ function UserFormModal({ mode, user, onClose, onSaved }: FormModalProps) {
         } else if (Object.keys(err.fieldErrors).length > 0) {
           setErrors(err.fieldErrors as FormErrors);
         } else {
-          setFormError(err.message);
+          addToast("error", err.message);
         }
       } else {
-        setFormError(err instanceof Error ? err.message : "Request failed");
+        addToast("error", err instanceof Error ? err.message : "Request failed");
       }
     } finally {
       setSaving(false);
@@ -182,12 +184,6 @@ function UserFormModal({ mode, user, onClose, onSaved }: FormModalProps) {
 
   return (
     <Modal title={mode === "create" ? "Add user" : `Edit ${user!.first_name}`} onClose={onClose}>
-      {formError && (
-        <div role="alert" className="alert-error mb-4">
-          <span className="material-symbols-outlined text-[18px]">error</span>
-          {formError}
-        </div>
-      )}
 
       <form onSubmit={handleSubmit} noValidate>
         <div className="grid gap-x-4 gap-y-3 sm:grid-cols-2">
@@ -295,6 +291,7 @@ function UserFormModal({ mode, user, onClose, onSaved }: FormModalProps) {
 export default function AdminUsersPage() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
   // list state
   const [rows, setRows] = useState<UserOut[]>([]);
@@ -303,7 +300,6 @@ export default function AdminUsersPage() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [loading, setLoading] = useState(true);
-  const [listError, setListError] = useState<string | null>(null);
 
   // filters
   const [search, setSearch] = useState("");
@@ -342,7 +338,6 @@ export default function AdminUsersPage() {
   const loadList = useCallback(
     async (targetPage: number) => {
       setLoading(true);
-      setListError(null);
       try {
         const params: ListUsersParams = { page: targetPage, limit };
         if (debouncedSearch.trim().length >= (debouncedSearch.includes("@") ? 3 : 1)) {
@@ -356,9 +351,9 @@ export default function AdminUsersPage() {
         setRows(data.users);
         setTotal(data.total);
         setTotalPages(data.total_pages);
-        setPage(data.page); // server clamps to valid range
+        setPage(data.page);
       } catch (err) {
-        setListError(err instanceof Error ? err.message : "Failed to load users");
+        addToast("error", err instanceof Error ? err.message : "Failed to load users");
       } finally {
         setLoading(false);
       }
@@ -383,11 +378,12 @@ export default function AdminUsersPage() {
     setDeleting(true);
     try {
       await deleteUser(deleteTarget.id);
+      addToast("success", "User deleted.");
       setDeleteTarget(null);
       await loadList(page);
       loadStats();
     } catch (err) {
-      setListError(err instanceof Error ? err.message : "Delete failed");
+      addToast("error", err instanceof Error ? err.message : "Delete failed");
       setDeleteTarget(null);
     } finally {
       setDeleting(false);
@@ -526,14 +522,6 @@ export default function AdminUsersPage() {
             </button>
           )}
         </div>
-
-        {/* Errors */}
-        {listError && (
-          <div role="alert" className="alert-error mb-4">
-            <span className="material-symbols-outlined text-[18px]">error</span>
-            {listError}
-          </div>
-        )}
 
         {/* Table card */}
         <div className="card overflow-hidden">

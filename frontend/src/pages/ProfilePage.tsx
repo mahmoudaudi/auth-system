@@ -7,6 +7,7 @@ import { avatarUrl, removeAvatar, updateMe, uploadAvatar } from "../api/endpoint
 import { useAuth } from "../auth/AuthContext";
 import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
 import TextField from "../components/TextField";
+import { useToast } from "../components/ToastContext";
 import {
   isPasswordValid,
   passwordChecks,
@@ -50,12 +51,11 @@ const VALIDATORS: Record<string, (value: string) => string | undefined> = {
 export default function ProfilePage() {
   const { user, token, login, logout } = useAuth();
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
   const [form, setForm] = useState<ProfileForm>(() => formFromUser(user!));
   const [newPassword, setNewPassword] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
-  const [formError, setFormError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -72,7 +72,6 @@ export default function ProfilePage() {
 
   function setField(name: keyof ProfileForm, value: string) {
     setForm((previous) => ({ ...previous, [name]: value }));
-    setSuccess(false);
     if (errors[name])
       setErrors((previous) => ({ ...previous, [name]: undefined }));
   }
@@ -90,8 +89,9 @@ export default function ProfilePage() {
     try {
       const updated = await uploadAvatar(file);
       login(token!, updated);
+      addToast("success", "Avatar updated!");
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : "Avatar upload failed");
+      addToast("error", err instanceof Error ? err.message : "Avatar upload failed");
     } finally {
       setAvatarUploading(false);
     }
@@ -102,8 +102,9 @@ export default function ProfilePage() {
     try {
       const updated = await removeAvatar();
       login(token!, updated);
+      addToast("success", "Avatar removed.");
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : "Failed to remove avatar");
+      addToast("error", err instanceof Error ? err.message : "Failed to remove avatar");
     } finally {
       setAvatarUploading(false);
     }
@@ -112,8 +113,6 @@ export default function ProfilePage() {
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     if (!dirty || loading) return;
-    setFormError(null);
-    setSuccess(false);
 
     const nextErrors: FieldErrors = {};
     (Object.keys(VALIDATORS) as Array<keyof ProfileForm>).forEach((name) => {
@@ -140,14 +139,14 @@ export default function ProfilePage() {
       const updated = await updateMe(payload);
       login(token!, updated);
       setNewPassword("");
-      setSuccess(true);
+      addToast("success", "Profile updated successfully!");
     } catch (err) {
       if (err instanceof ApiError) {
         if (Object.keys(err.fieldErrors).length > 0)
           setErrors(err.fieldErrors as FieldErrors);
-        else setFormError(err.message);
+        else addToast("error", err.message);
       } else {
-        setFormError(err instanceof Error ? err.message : "Update failed");
+        addToast("error", err instanceof Error ? err.message : "Update failed");
       }
     } finally {
       setLoading(false);
@@ -288,19 +287,6 @@ export default function ProfilePage() {
               Edit profile
             </h2>
 
-            {formError && (
-              <div role="alert" className="alert-error mb-4">
-                <span className="material-symbols-outlined text-[18px]">error</span>
-                {formError}
-              </div>
-            )}
-            {success && (
-              <div role="status" className="alert-success mb-4">
-                <span className="material-symbols-outlined text-[18px]">check_circle</span>
-                Profile updated.
-              </div>
-            )}
-
             <form onSubmit={handleSubmit} noValidate>
               <div className="grid gap-x-4 gap-y-3 sm:grid-cols-2">
                 <TextField
@@ -370,7 +356,6 @@ export default function ProfilePage() {
                     error={errors.password}
                     onChange={(event) => {
                       setNewPassword(event.target.value);
-                      setSuccess(false);
                       if (errors.password)
                         setErrors((previous) => ({ ...previous, password: undefined }));
                     }}
@@ -387,7 +372,6 @@ export default function ProfilePage() {
                     setForm(formFromUser(user!));
                     setNewPassword("");
                     setErrors({});
-                    setFormError(null);
                   }}
                   className="btn-ghost disabled:opacity-40"
                 >

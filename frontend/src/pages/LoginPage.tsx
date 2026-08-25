@@ -4,15 +4,16 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import { getMe, login as apiLogin } from "../api/endpoints";
 import { useAuth } from "../auth/AuthContext";
 import AuthLayout from "../components/AuthLayout";
+import { useToast } from "../components/ToastContext";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { user, login } = useAuth();
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
   if (user) {
     return (
@@ -22,16 +23,16 @@ export default function LoginPage() {
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    setFormError(null);
     setLoading(true);
     try {
       const tokenResponse = await apiLogin(email.trim(), password);
       localStorage.setItem("usersys_token", tokenResponse.access_token);
       const me = await getMe();
       login(tokenResponse.access_token, me);
+      addToast("success", `Welcome back, ${me.first_name}!`);
       navigate(me.type === "admin" ? "/admin/users" : "/profile");
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : "Login failed");
+      addToast("error", err instanceof Error ? err.message : "Login failed");
     } finally {
       setLoading(false);
     }
@@ -41,13 +42,6 @@ export default function LoginPage() {
     <AuthLayout>
       <div>
         <h1 className="auth-title">WELCOME</h1>
-
-        {formError && (
-          <div role="alert" className="auth-alert-error mt-4">
-            <span className="material-symbols-outlined text-[18px]">error</span>
-            {formError}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} noValidate>
           <label className="auth-field" htmlFor="login-email">

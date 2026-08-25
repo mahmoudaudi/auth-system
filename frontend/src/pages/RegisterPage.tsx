@@ -6,6 +6,7 @@ import { getMe, login as apiLogin, register as apiRegister } from "../api/endpoi
 import { useAuth } from "../auth/AuthContext";
 import AuthLayout from "../components/AuthLayout";
 import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
+import { useToast } from "../components/ToastContext";
 import {
   isPasswordValid,
   passwordChecks,
@@ -84,12 +85,12 @@ function Field({
 export default function RegisterPage() {
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [errors, setErrors] = useState<FieldErrors>({});
-  const [formError, setFormError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(0);
   const { user, login } = useAuth();
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
   if (user) {
     return (
@@ -141,7 +142,6 @@ export default function RegisterPage() {
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     if (!validateStep(2)) return;
-    setFormError(null);
     setLoading(true);
     try {
       await apiRegister({
@@ -160,6 +160,7 @@ export default function RegisterPage() {
       localStorage.setItem("usersys_token", tokenResponse.access_token);
       const me = await getMe();
       login(tokenResponse.access_token, me);
+      addToast("success", `Welcome, ${me.first_name}! Your account is ready.`);
       navigate("/profile");
     } catch (err) {
       if (err instanceof ApiError) {
@@ -167,9 +168,9 @@ export default function RegisterPage() {
           setErrors((prev) => ({ ...prev, email: err.message }));
         else if (Object.keys(err.fieldErrors).length > 0)
           setErrors(err.fieldErrors as FieldErrors);
-        else setFormError(err.message);
+        else addToast("error", err.message);
       } else {
-        setFormError(err instanceof Error ? err.message : "Registration failed");
+        addToast("error", err instanceof Error ? err.message : "Registration failed");
       }
     } finally {
       setLoading(false);
@@ -201,13 +202,6 @@ export default function RegisterPage() {
           ))}
         </div>
         <p className="mb-4 text-center text-[12px] text-white/50">{STEP_LABELS[step]}</p>
-
-        {formError && (
-          <div role="alert" className="auth-alert-error mt-2">
-            <span className="material-symbols-outlined text-[16px]">error</span>
-            {formError}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} noValidate className="mt-3 flex flex-col gap-4">
           {/* Step 1: Personal Info */}
