@@ -1,10 +1,10 @@
--- Run ONCE with:  sudo mysql < setup_db.sql
--- Creates the app databases and a dedicated MySQL user for the project.
+-- Run ONCE with:  psql -U postgres -f setup_db.sql
+-- Creates the app databases and a dedicated PostgreSQL user for the project.
 
-CREATE DATABASE IF NOT EXISTS auth_system CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE DATABASE IF NOT EXISTS auth_system_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER auth_app WITH PASSWORD 'your_secure_password_here';
 
-CREATE USER IF NOT EXISTS 'auth_app'@'localhost' IDENTIFIED BY 'your_secure_password_here';
-GRANT ALL PRIVILEGES ON auth_system.* TO 'auth_app'@'localhost';
-GRANT ALL PRIVILEGES ON auth_system_test.* TO 'auth_app'@'localhost';
-FLUSH PRIVILEGES;
+CREATE DATABASE auth_system OWNER auth_app;
+CREATE DATABASE auth_system_test OWNER auth_app;
+
+GRANT ALL PRIVILEGES ON DATABASE auth_system TO auth_app;
+GRANT ALL PRIVILEGES ON DATABASE auth_system_test TO auth_app;

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ──────────────────────────────────────────────────────────────
-# One-command launcher: MySQL check + Backend + Frontend
+# One-command launcher: PostgreSQL check + Backend + Frontend
 #
 #   ./run.sh        → starts everything, Ctrl+C stops all
 # ──────────────────────────────────────────────────────────────
@@ -8,10 +8,10 @@ set -e
 cd "$(dirname "$0")"
 mkdir -p logs
 
-# 1) Make sure MySQL is running
-if ! mysqladmin ping --silent 2>/dev/null; then
-    echo "▸ Starting MySQL…"
-    sudo service mysql start || echo "⚠ Could not start MySQL - start it manually!"
+# 1) Make sure PostgreSQL is running
+if ! pg_isready --quiet 2>/dev/null; then
+    echo "▸ Starting PostgreSQL…"
+    sudo service postgresql start || echo "⚠ Could not start PostgreSQL - start it manually!"
 fi
 
 cleanup() {

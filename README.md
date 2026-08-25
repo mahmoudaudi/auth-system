@@ -1,6 +1,6 @@
 # Auth & User Management API
 
-A production-style REST API built with **FastAPI + MySQL**, featuring JWT authentication,
+A production-style REST API built with **FastAPI + PostgreSQL**, featuring JWT authentication,
 role-based authorization (admin/client), soft delete, pagination, filtering and public statistics.
 
 ---
@@ -37,7 +37,7 @@ auth-system/
 │   ├── test_register.py         ├── test_login.py        ├── test_auth_dependencies.py
 │   ├── test_authorization.py    ├── test_profile.py      ├── test_admin_users.py
 │   ├── test_soft_delete.py      └── test_stats.py
-├── setup_db.sql                 # One-time DB + DB-user bootstrap (run with sudo mysql)
+├── setup_db.sql                 # One-time DB + DB-user bootstrap
 ├── .env.example                 # Template - copy to .env
 ├── requirements.txt · pytest.ini · ruff.toml · README.md
 ```
@@ -50,7 +50,7 @@ reusable auth logic shared by all protected endpoints.
 
 ```bash
 cd ~/Desktop/auth-system
-sudo mysql < setup_db.sql
+psql -U postgres -f setup_db.sql
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env

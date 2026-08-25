@@ -1,7 +1,7 @@
 """Shared test fixtures.
 
 Strategy:
-- The whole suite runs against the REAL MySQL server but on the dedicated
+- The whole suite runs against the REAL PostgreSQL server but on the dedicated
   ``auth_system_test`` database (URL derived from .env, never hardcoded here).
 - Tables are dropped/recreated once per session; rows are wiped after EVERY
   test so tests stay independent.
@@ -95,11 +95,7 @@ def auth_header(client: TestClient, email: str, password: str = PASSWORD) -> dic
 
 
 def refresh_db(db: Session) -> None:
-    """Make rows committed by ANOTHER session visible in this session.
-
-    MySQL runs REPEATABLE READ by default: a session keeps its snapshot until
-    its transaction ends. Committing here closes it so the next read is fresh.
-    """
+    """Make rows committed by ANOTHER session visible in this session."""
     db.commit()
     db.expire_all()
 

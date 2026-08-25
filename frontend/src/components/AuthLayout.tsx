@@ -28,23 +28,21 @@ export default function AuthLayout({
     <div className="auth-page grid min-h-screen overflow-hidden lg:h-screen lg:grid-cols-[minmax(570px,56.6%)_1fr]">
       {/* Login panel */}
       <section
-        className={`auth-panel relative z-[2] flex justify-center px-6 pb-8 sm:px-12 ${
+        className={`auth-panel relative z-[2] flex flex-col items-center justify-center px-6 pb-8 sm:px-12 lg:flex-row lg:justify-center ${
           compact
             ? "items-center pt-20"
-            : "min-h-screen items-center sm:min-h-0 sm:items-start sm:pt-44 lg:pt-[clamp(160px,23vh,240px)]"
+            : "min-h-screen sm:min-h-0 sm:justify-start sm:pt-44 lg:pt-[clamp(160px,23vh,240px)]"
         }`}
       >
-        <div className={`relative w-full max-w-[420px] ${compact ? "my-auto" : ""}`}>
-          {!compact && (
-            <img
-              src={avatar}
-              alt=""
-              draggable={false}
-              className="mx-auto mb-4 block w-16 sm:absolute sm:left-1/2 sm:top-6 sm:mx-0 sm:mb-0 sm:block sm:-translate-x-1/2 lg:top-[clamp(48px,7vh,80px)] lg:w-20 sm:w-[72px]"
-            />
-          )}
-          {children}
-        </div>
+        {!compact && (
+          <img
+            src={avatar}
+            alt=""
+            draggable={false}
+            className="z-[3] mb-4 w-16 sm:absolute sm:left-1/2 sm:top-6 sm:mb-0 sm:-translate-x-1/2 lg:top-[clamp(80px,12vh,130px)] lg:w-20 sm:w-[72px]"
+          />
+        )}
+        <div className={`w-full max-w-[420px] ${compact ? "my-auto" : ""}`}>{children}</div>
       </section>
 
       {/* Art panel */}

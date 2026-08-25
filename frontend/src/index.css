@@ -445,6 +445,70 @@
   box-shadow: 0 0 0 2px var(--color-background), 0 0 0 4px var(--color-primary);
 }
 
+/* Step indicator */
+.auth-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 4px;
+}
+.auth-step-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.35);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.25s ease;
+  flex-shrink: 0;
+}
+.auth-step-dot.active {
+  color: #00523F;
+  background: #FFC42A;
+  border-color: #FFC42A;
+}
+.auth-step-dot.done {
+  color: #00523F;
+  background: rgba(255, 196, 42, 0.5);
+  border-color: rgba(255, 196, 42, 0.5);
+}
+.auth-step-line {
+  width: 32px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.15);
+  transition: background 0.25s ease;
+}
+.auth-step-line.done {
+  background: rgba(255, 196, 42, 0.5);
+}
+
+/* Ghost button (Back) */
+.auth-btn-ghost {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-family: inherit;
+  transition: color 0.15s ease;
+}
+.auth-btn-ghost:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
