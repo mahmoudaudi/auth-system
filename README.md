@@ -50,10 +50,9 @@ reusable auth logic shared by all protected endpoints.
 
 ```bash
 cd ~/Desktop/auth-system
-sudo mysql < setup_db.sql                       # one-time (section 4)
+sudo mysql < setup_db.sql
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env                            # then edit secrets (section 3)
-python -m app.create_admin                      # one-time first admin
+cp .env.example .env
+python -m app.create_admin
 ```
-
