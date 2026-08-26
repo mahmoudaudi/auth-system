@@ -20,10 +20,11 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
     except (jwt.PyJWTError, KeyError, TypeError, ValueError):
         raise unauthorized from None
 
+    from app.services.users import _doc_to_user
     user = await get_by_id(user_id)
     if user is None or user.get("is_deleted"):
         raise unauthorized
-    return user
+    return _doc_to_user(user)
 
 
 async def require_admin(current_user: dict = Depends(get_current_user)) -> dict:
