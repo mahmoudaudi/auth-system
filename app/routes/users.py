@@ -153,7 +153,7 @@ async def delete_user(
         raise HTTPException(status_code=404, detail="User not found")
 
     await user_service.soft_delete(user_id)
-    return {"detail": f"User {user['email']} has been deleted"}
+    return {"detail": f"User {user_service._doc_to_user(user)['email']} has been deleted"}
 
 
 @router.post(
@@ -195,7 +195,7 @@ async def upload_avatar(
         UserUpdateMeIn.model_validate({"avatar_url": f"/uploads/avatars/{filename}"}),
     )
     updated = await user_service.get_by_id(str(current_user["id"]))
-    return updated
+    return user_service._doc_to_user(updated)
 
 
 @router.delete(
@@ -215,5 +215,5 @@ async def remove_avatar(
             UserUpdateMeIn.model_validate({"avatar_url": None}),
         )
         updated = await user_service.get_by_id(str(current_user["id"]))
-        return updated
+        return user_service._doc_to_user(updated)
     return current_user

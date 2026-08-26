@@ -32,23 +32,10 @@ async def register(data: RegisterIn):
 
 @router.post("/login", response_model=TokenOut, summary="Login with email + password")
 async def login(data: LoginIn):
-    import logging
-    logger = logging.getLogger(__name__)
-    try:
-        user = await authenticate(data.email, data.password)
-        if user is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid email or password",
-            )
-        user_id = str(user["_id"])
-        token = create_access_token(user_id)
-        return TokenOut(access_token=token)
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.exception("Login failed unexpectedly")
+    user = await authenticate(data.email, data.password)
+    if user is None:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Login error: {type(e).__name__}: {e}",
-        ) from e
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password",
+        )
+    return TokenOut(access_token=create_access_token(str(user["_id"])))
