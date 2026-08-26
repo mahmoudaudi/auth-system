@@ -32,4 +32,4 @@ async def login(data: LoginIn):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password",
         )
-    return TokenOut(access_token=create_access_token(str(user["id"])))
+    return TokenOut(access_token=create_access_token(str(user["_id"])))
