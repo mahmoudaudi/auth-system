@@ -2,7 +2,7 @@ import re
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 PHONE_REGEX = re.compile(r"^\+?\d{7,15}$")
 
@@ -29,12 +29,6 @@ def _validate_password(value: str) -> str:
 
 
 class RegisterIn(BaseModel):
-    """Public registration input.
-
-    Deliberately has NO `type`/role field: every public registration
-    creates a client. Extra unknown JSON keys are ignored by Pydantic.
-    """
-
     first_name: str = Field(min_length=1, max_length=100)
     last_name: str = Field(min_length=1, max_length=100)
     email: EmailStr = Field(max_length=255)
@@ -62,17 +56,10 @@ class RegisterIn(BaseModel):
 
 
 class AdminCreateUserIn(RegisterIn):
-    """Admin create-user input: same fields as registration plus role."""
-
     type: USER_TYPES
 
 
 class UserUpdateMeIn(BaseModel):
-    """Self-update input. All fields optional; only provided ones change.
-
-    Deliberately has NO `type` field: users can never change their own role.
-    """
-
     first_name: str | None = Field(default=None, min_length=1, max_length=100)
     last_name: str | None = Field(default=None, min_length=1, max_length=100)
     email: EmailStr | None = Field(default=None, max_length=255)
@@ -80,6 +67,7 @@ class UserUpdateMeIn(BaseModel):
     city: str | None = Field(default=None, min_length=1, max_length=100)
     age: int | None = Field(default=None, ge=13, le=120)
     password: str | None = None
+    avatar_url: str | None = None
 
     @field_validator("first_name", "last_name", "city")
     @classmethod
@@ -102,17 +90,11 @@ class UserUpdateMeIn(BaseModel):
 
 
 class AdminUpdateUserIn(UserUpdateMeIn):
-    """Admin update input: everything a user may change plus the role."""
-
     type: USER_TYPES | None = None
 
 
 class UserOut(BaseModel):
-    """Safe public representation of a user. Never includes password/hash."""
-
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
+    id: str
     first_name: str
     last_name: str
     email: EmailStr

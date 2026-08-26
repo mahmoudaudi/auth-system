@@ -5,8 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from app.database.db import engine
-from app.models.user import Base
+from app.database.db import connect_db, close_db
 from app.routes import auth, stats, users
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -16,9 +15,9 @@ os.makedirs(os.path.join(UPLOAD_DIR, "avatars"), exist_ok=True)
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    os.makedirs(os.path.join(UPLOAD_DIR, "avatars"), exist_ok=True)
-    Base.metadata.create_all(bind=engine)
+    await connect_db()
     yield
+    await close_db()
 
 
 app = FastAPI(
@@ -35,7 +34,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Allow local frontend dev servers (Vite/CRA default ports) to call this API.
 _EXTRA_ORIGINS: list[str] = [
     o.strip()
     for o in os.getenv("CORS_ORIGINS", "").split(",")
@@ -60,7 +58,6 @@ app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(stats.router)
 
-# Serve uploaded files (avatars, etc.)
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 

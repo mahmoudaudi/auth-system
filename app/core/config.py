@@ -4,9 +4,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """Application configuration loaded from environment / .env file."""
-
     database_url: str
+    database_name: str = "auth_system"
     jwt_secret_key: str
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
@@ -24,7 +23,6 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    """Cache settings so the .env file is parsed only once per process."""
     return Settings()
 
 

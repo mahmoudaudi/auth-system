@@ -1,7 +1,7 @@
 import { BASE_URL, api, TOKEN_KEY } from "./client";
 
 export interface UserOut {
-  id: number;
+  id: string;
   first_name: string;
   last_name: string;
   email: string;
@@ -87,11 +87,11 @@ export type AdminUpdateUserPayload = UpdateMePayload & {
 };
 
 export const adminUpdateUser = (
-  userId: number,
+  userId: string,
   payload: AdminUpdateUserPayload,
 ) => api<UserOut>(`/users/${userId}`, { method: "PUT", body: payload, auth: true });
 
-export const deleteUser = (userId: number) =>
+export const deleteUser = (userId: string) =>
   api<{ detail: string }>(`/users/${userId}`, { method: "DELETE", auth: true });
 
 // ---- public stats ----
