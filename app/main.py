@@ -78,6 +78,7 @@ app.add_middleware(
         "http://127.0.0.1:3000",
         "http://127.0.0.1:5173",
         "https://auth-system-ten-wheat.vercel.app",
+        "https://auth-system-47x6xxply-mahmoud-audi-s-projects.vercel.app",
         *_EXTRA_ORIGINS,
     ],
     allow_credentials=True,
