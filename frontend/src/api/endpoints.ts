@@ -36,6 +36,9 @@ export interface RegisterPayload {
 export const register = (payload: RegisterPayload) =>
   api<UserOut>("/register", { method: "POST", body: payload });
 
+export const checkEmail = (email: string) =>
+  api<{ email: string; taken: boolean }>(`/check-email?email=${encodeURIComponent(email)}`);
+
 export const getMe = () => api<UserOut>("/users/me", { auth: true });
 
 /** All fields optional; only provided ones are sent. Never includes `type`. */

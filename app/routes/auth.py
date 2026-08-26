@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.core.security import create_access_token
 from app.schemas.auth import LoginIn, TokenOut
@@ -7,6 +7,12 @@ from app.services import users as user_service
 from app.services.auth import authenticate
 
 router = APIRouter(tags=["Authentication"])
+
+
+@router.get("/check-email", summary="Check if an email is already registered")
+async def check_email(email: str = Query(..., min_length=3)):
+    taken = await user_service.email_in_use(email.lower())
+    return {"email": email.lower(), "taken": taken}
 
 
 @router.post(

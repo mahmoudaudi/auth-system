@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { ApiError } from "../api/client";
-import { getMe, login as apiLogin, register as apiRegister } from "../api/endpoints";
+import { checkEmail, getMe, login as apiLogin, register as apiRegister } from "../api/endpoints";
 import { useAuth } from "../auth/AuthContext";
 import AuthLayout from "../components/AuthLayout";
 import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
@@ -106,13 +106,18 @@ export default function RegisterPage() {
   }
 
   function handleBlur(name: keyof FormState) {
+    if (name === "email" && validateEmail(form.email) === undefined && form.email.trim()) {
+      checkEmail(form.email.trim().toLowerCase()).then((res) => {
+        if (res.taken) setErrors((prev) => ({ ...prev, email: "Email already registered" }));
+      }).catch(() => {});
+    }
     const msg =
       name === "password"
         ? isPasswordValid(checks)
           ? undefined
           : "Password does not meet all requirements"
         : VALIDATORS[name]?.(form[name]);
-    setErrors((prev) => ({ ...prev, [name]: msg }));
+    if (name !== "email") setErrors((prev) => ({ ...prev, [name]: msg }));
   }
 
   function validateStep(currentStep: number): boolean {
