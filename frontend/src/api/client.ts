@@ -1,4 +1,4 @@
-export const BASE_URL = import.meta.env.VITE_API_URL ?? "http://127.0.0.1:8001";
+export const BASE_URL = import.meta.env.VITE_API_URL || "https://auth-system-sl06.onrender.com";
 export const TOKEN_KEY = "usersys_token";
 
 interface ApiOptions {
